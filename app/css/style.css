@@ -1,0 +1,107 @@
+*{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    font-family: arial, helvetica, sans-serif;
+}
+input{
+    font-size: 100%;
+}
+h1{
+    font-family: 'pacifico';
+    color: rgb(52, 152, 219);
+}
+#container{
+    width: 60%;
+    text-align: center;
+    margin: 0 auto;
+}
+.video-wrapper{
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(52, 152, 219);
+    padding: 20px;
+    border-radius: 5px;
+    text-align: left;
+    display: flex;
+}
+.col{
+    flex: 3;
+}
+.col-snap{
+    flex: 1;
+    margin: auto;
+    text-align: center;
+}
+
+#pseudo{
+    margin-bottom: 20px;
+    padding: 5px;
+}
+#video{
+    width: 100%;
+}
+#snap{
+    transition: all 50ms ease;
+}
+#snap:hover{
+    transform: scale(1.2);
+}
+#preview-text{
+    color: white;
+    margin-bottom: 24px;
+    padding: 5px 0;
+}
+#preview-image{
+    width: 100%;
+}
+#preview{
+    display: none;
+    width: 100%;
+}
+#submit{
+    padding: 10px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    width: 90px;
+    margin-left: -45px;
+}
+#wall{
+    overflow: hidden;
+}
+
+.wall-user{
+    position: relative;
+    float: left;
+    width: 25%;
+
+}
+.wall-user img{
+    width: 100%;
+}
+.wall-user p{
+    background: rgba(0,0,0,0.5);
+    color :white;
+    position: absolute;
+    left:0;
+    right: 0;
+    bottom: 4px;
+    height: 20px;
+}
+/* small screen */
+@media screen and (max-width: 600px) {
+    #container{
+        width: 95%;
+    }
+    .video-wrapper{
+        flex-direction: column;
+        text-align: center;
+    }
+    .col{
+        width: 100%;
+        margin: 0 0 20px 0;
+    }
+}
