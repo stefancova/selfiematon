@@ -2,6 +2,7 @@
 var socket = io.connect('http://pm-stecov.equesto.fr:8080');
 
 var wall = '';
+var progress = '';
 var user = '';
 var users = [];
 var photoTaken = false;
@@ -71,6 +72,7 @@ socket.on('readfiles', function (imagesArray) {
 socket.on('filesaved', function (image) {
     console.log('on_filesaved', image);
     insertImage(image,'insertBefore');
+    progress.className = "";
 });
 
 
@@ -80,6 +82,7 @@ socket.on('filesaved', function (image) {
 window.addEventListener("DOMContentLoaded", function () {
 
     wall = document.getElementById("wall");
+    progress = document.getElementById("progress");
 
     // Grab elements, create settings, etc.
     var canvas = document.getElementById("preview"),
@@ -148,6 +151,8 @@ window.addEventListener("DOMContentLoaded", function () {
 
         e.preventDefault();
         var error = document.getElementById("error");
+
+        progress.classList.add("active");
 
         // Send canvas to server
         var dataURL = canvas.toDataURL();

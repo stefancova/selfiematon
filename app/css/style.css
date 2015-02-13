@@ -45,7 +45,7 @@ h1{
     width: 100%;
 }
 #snap{
-    transition: all 50ms ease;
+    transition: all 250ms cubic-bezier(0,1.78,.97,.89);
 }
 #snap:hover{
     transform: scale(1.2);
@@ -70,10 +70,14 @@ h1{
     width: 90px;
     margin-left: -45px;
 }
-#wall{
-    /*overflow: hidden;*/
+#progress{
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 250ms ease;
 }
-
+#progress.active{
+    opacity: 1;
+}
 .wall-user{
     position: relative;
     float: left;
@@ -85,7 +89,7 @@ h1{
 .wall-user span {
     display: block;
     background: #fff;
-    margin: 0 0 27px 30px;
+    margin: 0 0 1em 0;
     width: auto;
     padding: 10px;
     text-align: center;
@@ -140,7 +144,7 @@ h1{
 .wall-user p{
     text-transform: uppercase;
 }
-/* small screen */
+/* ############### SMALL SCREEN ##############*/
 @media screen and (max-width: 600px) {
     #container{
         width: 95%;
@@ -150,9 +154,23 @@ h1{
         text-align: center;
     }
     .col{
-        width: 100%;
-        margin: 0 0 20px 0;
+        width: 80%;
+        margin: 0 auto 20px auto;
     }
+    #preview{
+        position: absolute;
+        width: 70%;
+        top:70px;
+    }
+    #preview-text{
+        margin: 20px 0 0 0;
+    }
+    #submit{
+        position: static;
+        width: 80%;
+        margin: 0 auto;
+    }
+
     .wall-user{
         width: 50%;
     }
