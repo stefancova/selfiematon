@@ -51,6 +51,7 @@ io.on('connection', function (socket) {
                 throw err
             }else{
                 // Emit "filesaved"
+                socket.broadcast.emit('filesaved', data.pseudo + '.png');
                 socket.emit('filesaved', data.pseudo + '.png');
                 console.log('File '+ data.pseudo + '.png saved.');
             }

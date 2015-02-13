@@ -7,6 +7,11 @@ var users = [];
 var photoTaken = false;
 
 
+/**
+ * Test if an user exist
+ * @param user
+ * @returns {boolean}
+ */
 var isUserExist = function (user) {
     for (var i = 0; i < users.length; i++) {
         if (users.indexOf(user) > -1) {
@@ -19,14 +24,20 @@ var isUserExist = function (user) {
     }
 };
 
-var insertImage = function (imagePath) {
-    console.log('insertImage', imagePath);
+/**
+ * Insert image in DOM
+ * @param imagePath {string}
+ * @param method {string} appendChild or insertBefore
+ */
+var insertImage = function (imagePath, method) {
+    console.log('insertImage', imagePath, method);
 
     // Push image to wall
     var user = imagePath.replace('.png', '');
-    var div = document.createElement("div");
-    div.setAttribute('id', user);
-    div.setAttribute('class', 'wall-user');
+    var li = document.createElement("li");
+    var span = document.createElement("span");
+    li.setAttribute('id', user);
+    li.setAttribute('class', 'wall-user');
 
     var img = document.createElement("img");
     img.setAttribute("src", "./img/photo/" + imagePath + '?' + new Date().getTime());
@@ -34,10 +45,14 @@ var insertImage = function (imagePath) {
     var p = document.createElement("p");
     p.innerHTML = user;
 
-    div.appendChild(img);
-    div.appendChild(p);
-    wall.appendChild(div);
-    // Ads an user
+    li.appendChild(span);
+    span.appendChild(img);
+    span.appendChild(p);
+
+    // Insert image
+    method === 'appendChild' ? wall.appendChild(li) :  wall.insertBefore(li, wall.firstChild);
+
+    // Add user to array users
     users.push(imagePath.replace('.png', ''));
 };
 
@@ -47,15 +62,15 @@ socket.on('readfiles', function (imagesArray) {
     console.log('on_readfiles', imagesArray);
 
     for (var i = 0; i < imagesArray.length; i++) {
-        insertImage(imagesArray[i])
+        insertImage(imagesArray[i], 'appendChild')
     }
 });
 
 
 // IO: Save a new file
 socket.on('filesaved', function (image) {
-    console.log('on_filesaved', image)
-    insertImage(image);
+    console.log('on_filesaved', image);
+    insertImage(image,'insertBefore');
 });
 
 
@@ -107,11 +122,24 @@ window.addEventListener("DOMContentLoaded", function () {
         document.getElementById("preview-image").style.display = 'none';
         canvas.style.display = 'block';
 
-        // Set canvas size and draw video in canvas
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        // Set canvas size
+        var canvasSize = Math.min(video.videoWidth,video.videoHeight);
+        var cropX = 0;
+        var cropY = 0;
+        // Define crop
+        if(video.videoWidth > video.videoHeight){
+            cropX = video.videoWidth - video.videoHeight;
+        }else{
+            cropY = video.videoHeight - video.videoWidth;
+        }
+        console.error('canvasSize',canvasSize,'cropX',cropX/2,'cropY',cropY/2)
+
+
+        // Set canvas canvasSize and draw video in canvas with cropping
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        context.drawImage(video, -cropX, -cropY, canvasSize+cropX, canvasSize+cropY);
 
     });
 
@@ -134,7 +162,7 @@ window.addEventListener("DOMContentLoaded", function () {
             if (isUserExist(pseudo)) {
                 document.getElementById(pseudo).remove();
             }
-            error.innerHTML = 'OK';
+            error.innerHTML = 'All good !';
             socket.emit('newimage', {image: dataURL, pseudo: pseudo})
         }
     });

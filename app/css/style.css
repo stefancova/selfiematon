@@ -5,6 +5,7 @@
 }
 body{
     font-family: arial, helvetica, sans-serif;
+    background: #eeeeee;
 }
 input{
     font-size: 100%;
@@ -70,26 +71,74 @@ h1{
     margin-left: -45px;
 }
 #wall{
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 .wall-user{
     position: relative;
     float: left;
     width: 25%;
+    padding:0 0.625em 1.25em;
+    list-style-type: none;
+}
+/* By default, we tilt all our images -2 degrees */
+.wall-user span {
+    display: block;
+    background: #fff;
+    margin: 0 0 27px 30px;
+    width: auto;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    box-shadow: 0 3px 6px rgba(0,0,0,.25);
+    transition: transform .15s linear;
+    transform: rotate(-2deg);
+}
+/* Rotate all even images 2 degrees */
+.wall-user:nth-child(even) span {
+    transform: rotate(2deg);
+}
 
+/* Don't rotate every third image, but offset its position */
+.wall-user:nth-child(3n) span {
+    transform: none;
+    position: relative;
+    top: -5px;
+}
+
+/* Rotate every fifth image by 5 degrees and offset it */
+.wall-user:nth-child(5n) span {
+    transform: rotate(5deg);
+    position: relative;
+    right: 5px;
+}
+
+/* Keep default rotate for every eighth, but offset it */
+.wall-user:nth-child(8n) span {
+    position: relative;
+    top: 8px;
+    right: 5px;
+}
+
+/* Keep default rotate for every eleventh, but offset it */
+.wall-user:nth-child(11n) span {
+    position: relative;
+    top: 3px;
+    left: -5px;
+}
+.wall-user span:hover{
+    transform: scale(1.25);
+    box-shadow: 0 3px 6px rgba(0,0,0,.5);
+    position: relative;
+    z-index: 5;
 }
 .wall-user img{
     width: 100%;
 }
 .wall-user p{
-    background: rgba(0,0,0,0.5);
-    color :white;
-    position: absolute;
-    left:0;
-    right: 0;
-    bottom: 4px;
-    height: 20px;
+    text-transform: uppercase;
 }
 /* small screen */
 @media screen and (max-width: 600px) {
@@ -103,5 +152,8 @@ h1{
     .col{
         width: 100%;
         margin: 0 0 20px 0;
+    }
+    .wall-user{
+        width: 50%;
     }
 }
