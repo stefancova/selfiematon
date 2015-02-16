@@ -5,7 +5,6 @@ var wall = '';
 var progress = '';
 var user = '';
 var users = [];
-var photoTaken = false;
 
 
 /**
@@ -25,6 +24,13 @@ var isUserExist = function (user) {
     }
 };
 
+var removeInArray = function(arr, item) {
+    for(var i = arr.length; i--;) {
+        if(arr[i] === item) {
+            arr.splice(i, 1);
+        }
+    }
+}
 /**
  * Insert image in DOM
  * @param imagePath {string}
@@ -119,11 +125,13 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // Trigger photo take
     document.getElementById("snap").addEventListener("click", function () {
-        photoTaken = true;
 
-        // Hide preview and show canvas
-        document.getElementById("preview-image").style.display = 'none';
-        canvas.style.display = 'block';
+    });
+
+    // Send photo
+    document.getElementById("form").addEventListener("submit", function (e) {
+
+        e.preventDefault();
 
         // Set canvas size
         var canvasSize = Math.min(video.videoWidth,video.videoHeight);
@@ -144,12 +152,7 @@ window.addEventListener("DOMContentLoaded", function () {
         context.clearRect(0, 0, canvas.width, canvas.height);
         context.drawImage(video, -cropX, -cropY, canvasSize+cropX, canvasSize+cropY);
 
-    });
 
-    // Send photo
-    document.getElementById("form").addEventListener("submit", function (e) {
-
-        e.preventDefault();
         var error = document.getElementById("error");
 
         progress.classList.add("active");
@@ -158,18 +161,15 @@ window.addEventListener("DOMContentLoaded", function () {
         var dataURL = canvas.toDataURL();
         var pseudo = document.getElementById("pseudo").value;
 
-        console.log('submit', users, photoTaken, pseudo);
+        console.log('submit', users, pseudo);
 
-        if (photoTaken === false) {
-            error.innerHTML = 'Prendre une photo !';
+        if (isUserExist(pseudo)) {
+            removeInArray(users, pseudo);
+            document.getElementById(pseudo).remove();
         }
-        else {
-            if (isUserExist(pseudo)) {
-                document.getElementById(pseudo).remove();
-            }
-            error.innerHTML = 'All good !';
-            socket.emit('newimage', {image: dataURL, pseudo: pseudo})
-        }
+
+        socket.emit('newimage', {image: dataURL, pseudo: pseudo})
+
     });
 
 }, false);
