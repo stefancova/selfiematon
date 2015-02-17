@@ -20,16 +20,16 @@ $(document).ready(function () {
     if (hasGetUserMedia()) {
         console.log('getUserMedia OK');
 
-        $('#capture-file').hide();
+        $('.wrapper-file').hide();
         captureVideo();
 
     } else {
         console.error('getUserMedia() is not supported in your browser');
 
-        $('#capture-video').hide();
+        $('.wrapper-video').hide();
         // Detect old IE
         if (Detectizr.browser.name === 'ie' && Number(Detectizr.browser.version) < 10){
-            $('.video-wrapper').html('Veuillez mettre à jour votre navigateur');
+            $('#form').html('Veuillez mettre à jour votre navigateur');
         }
     }
 
