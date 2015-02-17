@@ -17,12 +17,11 @@
     <form id="form" action="">
         <div class="video-wrapper">
             <input type="text" id="pseudo" required="required" placeholder="Pseudo" value="0">
+
             <video id="video" autoplay poster="img/bg-video.png"></video>
             <button id="capture-video" type="button"><img src="img/camera.png"></button>
 
-            <!--<input type="file" capture="camera" accept="image/*" id="capture-file-old">-->
-            <input type="file" accept="image/*;capture=camera" id="capture-file">
-            <img id="ios-image">
+            <input id="capture-file" type="file" accept="image/*;capture=camera" >
 
             <canvas id="preview"></canvas>
         </div>

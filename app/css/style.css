@@ -48,7 +48,7 @@ h1{
     transform: scale(1.2);
 }
 #preview{
-    /*display: none;*/
+    display: none;
 }
 #progress{
     margin: 10px;

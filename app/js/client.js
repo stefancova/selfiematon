@@ -203,32 +203,6 @@ var sendCapture = function () {
 
     });
 
-    // CAPTURE FILE OLD
-    $('#capture-file-old').on('change', function (e) {
-
-        checkUser();
-
-        // Show progress bar
-        $progress.addClass("active");
-
-        // Create a file reader
-        var fr = new FileReader();
-
-        if(event.target.files.length == 1 &&  event.target.files[0].type.indexOf("image/") == 0) {
-            var file = event.target.files[0];
-            console.log('file',file);
-            fr.onload = receivedData;
-            fr.readAsDataURL(file);
-        }
-
-        function receivedData() {
-            console.log('fr.result',fr.result)
-            var croppedImage =  cropImage(fr.result);
-            var dataURL = croppedImage.toDataURL();
-            console.log('receivedData', dataURL);
-            socket.emit('newimage', {image : dataURL, pseudo: pseudo})
-        }
-    });
 
     // CAPTURE FILE
     $('#capture-file').on('change', function (e) {
@@ -240,8 +214,8 @@ var sendCapture = function () {
         loadImage(
             e.target.files[0],
             function (img) {
-                console.log('img',img.toDataURL().substring(0,100))
-                socket.emit('newimage', {image : img.toDataURL(), pseudo: pseudo})
+                console.log('img',img.toDataURL().substring(0,100));
+                socket.emit('newimage', {image : img.toDataURL(), pseudo: pseudo});
             },
             // Options
             {
