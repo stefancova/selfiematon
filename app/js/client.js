@@ -7,13 +7,14 @@ var user = '';
 var canvas = '';
 var context = '';
 var video = '';
-var pseudo = ''
+var pseudo = '';
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 $(document).ready(function () {
     console.log('ready !');
 
     function hasGetUserMedia() {
-        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        return !!(navigator.getUserMedia);
     }
 
     // Detect browser capacities
@@ -38,6 +39,8 @@ $(document).ready(function () {
     // Get Dom elements
     $wall = $("#wall");
     $progress = $("#progress");
+    canvas = document.getElementById("preview");
+    context = canvas.getContext("2d");
 
     sendCapture();
 });
@@ -75,53 +78,34 @@ var initWebsockets = function () {
  */
 var captureVideo = function () {
 
-    // Grab elements, create settings, etc.
-    canvas = document.getElementById("preview");
-    context = canvas.getContext("2d");
     video = document.getElementById("video");
-    var videoObj = {
-            "video": true,
-            "videoWidth": 200,
-            "videoHeight": 200
 
-        },
-        errBack = function (error) {
-            console.log("Video capture error: ", error.code);
-        };
+    errorCallback = function (error) {
+        console.log("Video capture error: ", error.code);
+    };
 
-    // Put video listeners into place
-    if (navigator.getUserMedia) { // Standard
-        navigator.getUserMedia(videoObj, function (stream) {
-            video.src = stream;
-            video.play();
-        }, errBack);
-    } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
-        navigator.webkitGetUserMedia(videoObj, function (stream) {
-            video.src = window.webkitURL.createObjectURL(stream);
-            video.play();
-        }, errBack);
-    }
-    else if (navigator.mozGetUserMedia) { // Firefox-prefixed
-        navigator.mozGetUserMedia(videoObj, function (stream) {
-            video.src = window.URL.createObjectURL(stream);
-            video.play();
-        }, errBack);
+    if (navigator.getUserMedia) {
+        navigator.getUserMedia({audio: false, video: true},
+            function (stream) {
+                video.src = window.URL.createObjectURL(stream);
+            },
+            errorCallback);
     }
 };
 
 
 /**
- * cropCanvas
+ * cropSourceToCanvas
  * @param source (image or video)
  * @param width
  * @param height
  * @returns {string}
  */
-var cropCanvas = function (source, width, height) {
-    console.log('cropCanvas', width, height);
+var cropSourceToCanvas = function (source, width, height) {
+    console.log('cropSourceToCanvas', width, height);
 
-    // Set canvas size to a square
-    var canvasSize = Math.min(width, height);
+    // Set source size to a square
+    var sourceSize = Math.min(width, height);
     var cropX = 0;
     var cropY = 0;
     // Define crop
@@ -130,14 +114,14 @@ var cropCanvas = function (source, width, height) {
     } else {
         cropY = height - width;
     }
-    console.log('canvasSize', canvasSize, 'cropX', cropX / 2, 'cropY', cropY / 2);
+    console.log('canvasSize', sourceSize, 'cropX', cropX / 2, 'cropY', cropY / 2);
 
 
-    // Set canvas canvasSize and draw source in canvas with cropping
-    canvas.width = canvasSize;
-    canvas.height = canvasSize;
+    // Set canvas size and draw source in canvas with cropping
+    canvas.width = sourceSize;
+    canvas.height = sourceSize;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(source, -cropX, -cropY, canvasSize + cropX, canvasSize + cropY);
+    context.drawImage(source, -cropX, -cropY, sourceSize + cropX, sourceSize + cropY);
 
     return canvas;
 
@@ -152,9 +136,9 @@ var cropImage = function (base64) {
     var image = new Image();
     image.src = base64;
 
-    console.log('cropImage', image.width, image.height)
+    console.log('cropImage', image.width, image.height);
 
-    var canvas = cropCanvas(image, image.width, image.height);
+    var canvas = cropSourceToCanvas(image, image.width, image.height);
     return canvas;
 };
 
@@ -165,7 +149,7 @@ var cropImage = function (base64) {
 var cropVideo = function (video) {
     console.log('cropVideo', video);
 
-    var canvas = cropCanvas(video, video.videoWidth, video.videoHeight);
+    var canvas = cropSourceToCanvas(video, video.videoWidth, video.videoHeight);
     return canvas;
 };
 
