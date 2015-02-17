@@ -7,9 +7,31 @@ var user = '';
 var canvas = '';
 var context = '';
 var video = '';
-
+var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
 
 $(document).ready(function () {
+    console.log('ready !');
+
+    function hasGetUserMedia() {
+        return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+    }
+
+    // Detect browser capacities
+    if (hasGetUserMedia()) {
+        console.log('getUserMedia OK');
+
+        $('#capture-file').hide();
+        captureVideo();
+
+    } else {
+        console.error('getUserMedia() is not supported in your browser');
+
+        $('#capture-video').hide();
+        // Detect old IE
+        if (Detectizr.browser.name === 'ie' && Number(Detectizr.browser.version) < 10){
+            $('.video-wrapper').html('Veuillez mettre à jour votre navigateur');
+        }
+    }
 
     initWebsockets();
 
@@ -17,8 +39,7 @@ $(document).ready(function () {
     $wall = $("#wall");
     $progress = $("#progress");
 
-    captureVideo();
-    sendPhoto();
+    sendCapture();
 });
 
 
@@ -28,7 +49,7 @@ $(document).ready(function () {
 var initWebsockets = function () {
 
     // Define websocket
-    socket = io.connect('http://pm-stecov.equesto.fr:8080') //TODO: add settings for this;
+    socket = io.connect('http://pm-stecov.equesto.fr:80') //TODO: add settings for this;
 
     // IO : Read images from server
     socket.on('readfiles', function (imagesArray) {
@@ -88,60 +109,149 @@ var captureVideo = function () {
     }
 };
 
+
 /**
- * cropVideo
- * Crop video do a square depending of the orientation of the camera
+ * cropCanvas
+ * @param source (image or video)
+ * @param width
+ * @param height
+ * @returns {string}
  */
-var cropVideo = function () {
+var cropCanvas = function (source, width, height){
+    console.log('cropCanvas',  width, height);
 
     // Set canvas size to a square
-    var canvasSize = Math.min(video.videoWidth, video.videoHeight);
+    var canvasSize = Math.min(width, height);
     var cropX = 0;
     var cropY = 0;
     // Define crop
-    if (video.videoWidth > video.videoHeight) {
-        cropX = video.videoWidth - video.videoHeight;
+    if (width > height) {
+        cropX = width - height;
     } else {
-        cropY = video.videoHeight - video.videoWidth;
+        cropY = height - width;
     }
     console.log('canvasSize', canvasSize, 'cropX', cropX / 2, 'cropY', cropY / 2);
 
 
-    // Set canvas canvasSize and draw video in canvas with cropping
+    // Set canvas canvasSize and draw source in canvas with cropping
     canvas.width = canvasSize;
     canvas.height = canvasSize;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(video, -cropX, -cropY, canvasSize + cropX, canvasSize + cropY);
+    context.drawImage(source, -cropX, -cropY, canvasSize + cropX, canvasSize + cropY);
 
+    return canvas;
+
+};
+
+/**
+ * cropImage
+ * @param base64
+ */
+var cropImage = function(base64){
+
+    var image = new Image();
+    image.src = base64;
+
+    console.log('cropImage', image.width,image.height)
+
+    var canvas = cropCanvas(image, image.width,image.height);
+    return canvas;
+};
+
+/**
+ * cropVideo
+ * @param video
+ */
+var cropVideo = function (video) {
+    console.log('cropVideo', video);
+
+    var canvas = cropCanvas(video, video.videoWidth, video.videoHeight);
+    return canvas;
 };
 
 
 /**
- * sendPhoto
+ * sendCapture : video streaming or input file
  */
-var sendPhoto = function () {
+var sendCapture = function () {
 
-    $("#form").on("submit", function (e) {
+    var pseudo;
 
-        e.preventDefault();
-
-        // Show progress bar
-        $progress.addClass("active");
-
-        cropVideo();
-
+    function checkUser(){
         // Check user
-        var pseudo = $("#pseudo").val();
+        pseudo = $("#pseudo").val();
         if (isUserExist(pseudo)) {
             removeItemInArray(users, pseudo);
             $('#'+pseudo).remove();
         }
         console.log('submit', users, pseudo);
+    }
+
+
+    // VIDEO STREAMING
+    $("#capture-video").on("click", function () {
+
+        checkUser();
+
+        // Show progress bar
+        $progress.addClass("active");
 
         // Send canvas to server
-        var dataURL = canvas.toDataURL();
+        var croppedVideo = cropVideo(video);
+        var dataURL = croppedVideo.toDataURL();
         socket.emit('newimage', {image: dataURL, pseudo: pseudo})
 
+    });
+
+    // CAPTURE FILE OLD
+    $('#capture-file-old').on('change', function (e) {
+
+        checkUser();
+
+        // Show progress bar
+        $progress.addClass("active");
+
+        // Create a file reader
+        var fr = new FileReader();
+
+        if(event.target.files.length == 1 &&  event.target.files[0].type.indexOf("image/") == 0) {
+            var file = event.target.files[0];
+            console.log('file',file);
+            fr.onload = receivedData;
+            fr.readAsDataURL(file);
+        }
+
+        function receivedData() {
+            console.log('fr.result',fr.result)
+            var croppedImage =  cropImage(fr.result);
+            var dataURL = croppedImage.toDataURL();
+            console.log('receivedData', dataURL);
+            socket.emit('newimage', {image : dataURL, pseudo: pseudo})
+        }
+    });
+
+    // CAPTURE FILE
+    $('#capture-file').on('change', function (e) {
+        checkUser();
+
+        // Show progress bar
+        $progress.addClass("active");
+
+        loadImage(
+            e.target.files[0],
+            function (img) {
+                console.log('img',img.toDataURL().substring(0,100))
+                socket.emit('newimage', {image : img.toDataURL(), pseudo: pseudo})
+            },
+            // Options
+            {
+                canvas: true,
+                maxWidth: 480,
+                maxHeight: 480,
+                crop: true,
+                orientation : true
+            }
+        );
     });
 };
 

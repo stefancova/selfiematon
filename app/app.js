@@ -63,4 +63,4 @@ io.on('connection', function (socket) {
 
 
 // Run server
-server.listen(8080);
+server.listen(80);
