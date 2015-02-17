@@ -32,6 +32,9 @@ h1{
     margin-bottom: 20px;
     padding: 5px;
 }
+#pseudo-error{
+    display: none;
+}
 #video{
     width: 100%;
     max-width: 80%;

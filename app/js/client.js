@@ -7,7 +7,7 @@ var user = '';
 var canvas = '';
 var context = '';
 var video = '';
-var iOS = ( navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false );
+var pseudo = ''
 
 $(document).ready(function () {
     console.log('ready !');
@@ -28,7 +28,7 @@ $(document).ready(function () {
 
         $('.wrapper-video').hide();
         // Detect old IE
-        if (Detectizr.browser.name === 'ie' && Number(Detectizr.browser.version) < 10){
+        if (Detectizr.browser.name === 'ie' && Number(Detectizr.browser.version) < 10) {
             $('#form').html('Veuillez mettre à jour votre navigateur');
         }
     }
@@ -80,14 +80,14 @@ var captureVideo = function () {
     context = canvas.getContext("2d");
     video = document.getElementById("video");
     var videoObj = {
-        "video": true,
-        "videoWidth": 200,
-        "videoHeight": 200
+            "video": true,
+            "videoWidth": 200,
+            "videoHeight": 200
 
-    },
-    errBack = function (error) {
-        console.log("Video capture error: ", error.code);
-    };
+        },
+        errBack = function (error) {
+            console.log("Video capture error: ", error.code);
+        };
 
     // Put video listeners into place
     if (navigator.getUserMedia) { // Standard
@@ -117,8 +117,8 @@ var captureVideo = function () {
  * @param height
  * @returns {string}
  */
-var cropCanvas = function (source, width, height){
-    console.log('cropCanvas',  width, height);
+var cropCanvas = function (source, width, height) {
+    console.log('cropCanvas', width, height);
 
     // Set canvas size to a square
     var canvasSize = Math.min(width, height);
@@ -147,14 +147,14 @@ var cropCanvas = function (source, width, height){
  * cropImage
  * @param base64
  */
-var cropImage = function(base64){
+var cropImage = function (base64) {
 
     var image = new Image();
     image.src = base64;
 
-    console.log('cropImage', image.width,image.height)
+    console.log('cropImage', image.width, image.height)
 
-    var canvas = cropCanvas(image, image.width,image.height);
+    var canvas = cropCanvas(image, image.width, image.height);
     return canvas;
 };
 
@@ -171,61 +171,79 @@ var cropVideo = function (video) {
 
 
 /**
+ * isPseudoFilled
+ * @returns {boolean}
+ */
+var isPseudoFilled = function () {
+    console.log('isPseudoFilled');
+
+    pseudo = $("#pseudo").val();
+
+    if (pseudo === '') {
+        return false;
+    } else {
+        return true;
+        if (isUserExist(pseudo)) {
+            removeItemInArray(users, pseudo);
+            $('#' + pseudo).remove();
+        }
+    }
+};
+
+/**
  * sendCapture : video streaming or input file
  */
 var sendCapture = function () {
 
-    var pseudo;
-
-    function checkUser(){
-        // Check user
-        pseudo = $("#pseudo").val();
-        if (isUserExist(pseudo)) {
-            removeItemInArray(users, pseudo);
-            $('#'+pseudo).remove();
-        }
-        console.log('submit', users, pseudo);
-    }
-
+    var $pseudoError = $('#pseudo-error');
 
     // VIDEO STREAMING
     $("#capture-video").on("click", function () {
 
-        checkUser();
+        $pseudoError.hide();
 
-        // Show progress bar
-        $progress.addClass("active");
+        if (isPseudoFilled()) {
+            // Show progress bar
+            $progress.addClass("active");
 
-        // Send canvas to server
-        var croppedVideo = cropVideo(video);
-        var dataURL = croppedVideo.toDataURL();
-        socket.emit('newimage', {image: dataURL, pseudo: pseudo})
+            // Send canvas to server
+            var croppedVideo = cropVideo(video);
+            var dataURL = croppedVideo.toDataURL();
+            socket.emit('newimage', {image: dataURL, pseudo: pseudo})
+        } else {
+            $pseudoError.show();
+        }
 
     });
 
 
     // CAPTURE FILE
     $('#capture-file').on('change', function (e) {
-        checkUser();
 
-        // Show progress bar
-        $progress.addClass("active");
+        $pseudoError.hide();
 
-        loadImage(
-            e.target.files[0],
-            function (img) {
-                console.log('img',img.toDataURL().substring(0,100));
-                socket.emit('newimage', {image : img.toDataURL(), pseudo: pseudo});
-            },
-            // Options
-            {
-                canvas: true,
-                maxWidth: 480,
-                maxHeight: 480,
-                crop: true,
-                orientation : true
-            }
-        );
+        if (isPseudoFilled()) {
+            // Show progress bar
+            $progress.addClass("active");
+
+            loadImage(
+                e.target.files[0],
+                function (img) {
+                    console.log('img', img.toDataURL().substring(0, 100));
+                    socket.emit('newimage', {image: img.toDataURL(), pseudo: pseudo});
+                },
+                // Options
+                {
+                    canvas: true,
+                    maxWidth: 480,
+                    maxHeight: 480,
+                    crop: true,
+                    orientation: true
+                }
+            );
+        } else {
+            $pseudoError.show();
+        }
     });
 };
 
