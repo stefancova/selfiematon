@@ -17,19 +17,23 @@ $(document).ready(function () {
         return !!(navigator.getUserMedia);
     }
 
+    function hasFileReader() {
+        return !!(window.FileReader);
+    }
+
     // Detect browser capacities
-    if (hasGetUserMedia()) {
+    if (hasGetUserMedia() ) {
         console.log('getUserMedia OK');
 
-        $('.wrapper-file').hide();
+        $('.wrapper-video').show();
         captureVideo();
 
     } else {
         console.error('getUserMedia() is not supported in your browser');
 
-        $('.wrapper-video').hide();
-        // Detect old IE
-        if (Detectizr.browser.name === 'ie' && Number(Detectizr.browser.version) < 10) {
+        $('.wrapper-file').show();
+        // Detect old IE and old browsers
+        if (!hasFileReader()) {
             $('#form').html('Veuillez mettre à jour votre navigateur');
         }
     }
@@ -166,11 +170,11 @@ var isPseudoFilled = function () {
     if (pseudo === '') {
         return false;
     } else {
-        return true;
         if (isUserExist(pseudo)) {
             removeItemInArray(users, pseudo);
             $('#' + pseudo).remove();
         }
+        return true;
     }
 };
 

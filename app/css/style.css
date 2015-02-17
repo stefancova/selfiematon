@@ -35,12 +35,16 @@ h1{
 #pseudo-error{
     display: none;
 }
+.wrapper-video,
+.wrapper-file{
+    display: none;
+}
 #video{
     width: 100%;
     max-width: 80%;
     margin: 0 auto;
+    /*-webkit-filter: grayscale(1);*/
 }
-
 #capture-video{
     display: block;
     margin: 20px auto 0;
