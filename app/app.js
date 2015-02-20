@@ -10,14 +10,12 @@ var fs = require('fs');
 var path = require('path');
 
 
-// Static ressources
-app.use('/img',express.static(path.join(__dirname, '/img')));
-app.use('/css',express.static(path.join(__dirname, '/css')));
-app.use('/js',express.static(path.join(__dirname, '/js')));
+// Make the files in the public folder available to the world
+app.use(express.static(__dirname + '/public'));
 
 // Route
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/public/index.html');
 });
 
 // Websocket actions
@@ -25,7 +23,7 @@ io.on('connection', function (socket) {
     console.log('A client is connected !');
 
     // Read images on file dir and emit message "readfiles"
-    fs.readdir( 'img/photo', function (err, files) {
+    fs.readdir( 'public/img/photo', function (err, files) {
         if (!err){
             console.log('read dir', files);
             socket.emit('readfiles',files);
@@ -44,7 +42,7 @@ io.on('connection', function (socket) {
         console.log('on_newimage : ' , image.substring(0,100));
 
         var imageBuffer = new Buffer(image, 'base64');
-        var fileName = './img/photo/'+ data.pseudo + '.png';
+        var fileName = './public/img/photo/'+ data.pseudo + '.png';
 
         fs.writeFile(fileName, imageBuffer, 'binary', function(err){
             if (err) {

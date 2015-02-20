@@ -27,7 +27,6 @@ $(document).ready(function () {
 
         $('.wrapper-video').show();
         captureVideo();
-
     } else {
         console.error('getUserMedia() is not supported in your browser');
 
@@ -95,7 +94,9 @@ var captureVideo = function () {
             },
             errorCallback);
     }
+
 };
+
 
 
 /**
