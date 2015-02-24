@@ -2,11 +2,31 @@
   "name": "selfiematon",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {},
+  "main": "app.js",
+  "scripts": {
+    "start": "node app/app.js"
+  },
+  "dependencies": {
+    "socket.io": "1.3.2",
+    "express": "^4.11.1"
+  },
   "devDependencies": {
     "socket.io": "1.3.2",
     "express": "^4.11.1",
     "jade": "^1.9.1",
     "ejs": "^2.2.3"
-  }
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stefancova/selfiematon"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
 }
