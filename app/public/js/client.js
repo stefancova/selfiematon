@@ -55,7 +55,7 @@ $(document).ready(function () {
 var initWebsockets = function () {
 
     // Define websocket
-    socket = io.connect('http://pm-stecov.equesto.fr:80') //TODO: add settings for this;
+    socket = io.connect(window.location.origin);
 
     // IO : Read images from server
     socket.on('readfiles', function (imagesArray) {
