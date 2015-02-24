@@ -9,6 +9,8 @@ var io = require('socket.io')(server);
 var fs = require('fs');
 var path = require('path');
 
+// Port
+app.set('port', (process.env.PORT || 5000));
 
 // Make the files in the public folder available to the world
 app.use(express.static(__dirname + '/public'));
@@ -61,4 +63,6 @@ io.on('connection', function (socket) {
 
 
 // Run server
-server.listen(80);
+app.listen(app.get('port'), function () {
+    console.log("Node app is running at localhost:" + app.get('port'));
+});
