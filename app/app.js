@@ -10,7 +10,7 @@ var fs = require('fs');
 var path = require('path');
 
 // Port
-app.set('port', (process.env.PORT || 80));
+app.set('port', (process.env.PORT || 5000));
 
 // Make the files in the public folder available to the world
 app.use(express.static(__dirname + '/public'));
