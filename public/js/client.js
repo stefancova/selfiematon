@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 var initWebsockets = function () {
 
+    localStorage.debug = '*';
+
     // Define websocket
     socket = io.connect(window.location.origin);
 
