@@ -35,9 +35,15 @@ h1{
 #pseudo-error{
     display: none;
 }
+#pseudo-error.active{
+    display: block;
+}
 .wrapper-video{
     display: none;
     position: relative;
+}
+.wrapper-video.active{
+    display: block;
 }
 #face-tracker{
     position: absolute;
@@ -47,6 +53,9 @@ h1{
 }
 .wrapper-file{
     display: none;
+}
+.wrapper-file.active{
+    display: block;
 }
 #video{
     width: 100%;

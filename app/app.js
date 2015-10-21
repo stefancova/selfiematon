@@ -25,12 +25,13 @@ io.on('connection', function (socket) {
     console.log('A client is connected !');
 
     // Read images on file dir and emit message "readfiles"
-    fs.readdir( 'app/public/img/photo', function (err, files) {
+    fs.readdir( 'public/img/photo', function (err, files) {
         if (!err){
             console.log('read dir', files);
             socket.emit('readfiles',files);
         }
         else{
+            console.log('error', err)
             throw err;
         }
     });
@@ -41,10 +42,10 @@ io.on('connection', function (socket) {
         // Write image on server file dir
         var image = data.image.replace(/^data:image\/\w+;base64,/, "");
 
-        console.log('on_newimage : ' , image.substring(0,100));
+        console.log('on_newimage : ' , image.substring(0,100), data.pseudo);
 
         var imageBuffer = new Buffer(image, 'base64');
-        var fileName = 'app/public/img/photo/'+ data.pseudo + '.png';
+        var fileName = 'public/img/photo/'+ data.pseudo + '.png';
 
         fs.writeFile(fileName, imageBuffer, 'binary', function(err){
             if (err) {

@@ -2,15 +2,16 @@
 var socket = '';
 var $wall = '';
 var $progress = '';
+var $pseudoError = '';
+var $canvas = '';
 var users = [];
 var user = '';
-var canvas = '';
 var context = '';
 var video = '';
 var pseudo = '';
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function() {
     console.log('ready !');
 
     function hasGetUserMedia() {
@@ -24,26 +25,25 @@ $(document).ready(function () {
     // Detect browser capacities
     if (hasGetUserMedia() ) {
         console.log('getUserMedia OK');
-
-        $('.wrapper-video').show();
+        document.querySelector('.wrapper-video').classList.add('active');
         captureVideo();
     } else {
         console.error('getUserMedia() is not supported in your browser');
-
-        $('.wrapper-file').show();
+        document.querySelector('.wrapper-file').classList.add('active');
         // Detect old IE and old browsers
         if (!hasFileReader()) {
-            $('#form').html('Veuillez mettre à jour votre navigateur');
+            document.querySelector('#form').innerHTML = 'Veuillez mettre à jour votre navigateur';
         }
     }
 
     initWebsockets();
 
     // Get Dom elements
-    $wall = $("#wall");
-    $progress = $("#progress");
-    canvas = document.getElementById("preview");
-    context = canvas.getContext("2d");
+    $wall = document.querySelector('#wall');
+    $progress = document.querySelector('#progress');
+    $pseudoError = document.querySelector('#pseudo-error');
+    $canvas = document.querySelector('#preview');
+    context = $canvas.getContext('2d');
 
     sendCapture();
 });
@@ -69,9 +69,8 @@ var initWebsockets = function () {
     // IO : Save a new file
     socket.on('filesaved', function (image) {
         console.log('on_filesaved', image);
-
         insertImage(image, 'before');
-        $progress.removeClass('active');
+        $progress.classList.remove('active');
     });
 };
 
@@ -81,10 +80,10 @@ var initWebsockets = function () {
  */
 var captureVideo = function () {
 
-    video = document.getElementById("video");
+    video = document.querySelector('video');
 
     errorCallback = function (error) {
-        console.log("Video capture error: ", error.code);
+        console.log('Video capture error: ', error.code);
     };
 
     if (navigator.getUserMedia) {
@@ -100,14 +99,14 @@ var captureVideo = function () {
 
 
 /**
- * cropSourceToCanvas
+ * cropSourceTocanvas
  * @param source (image or video)
  * @param width
  * @param height
  * @returns {string}
  */
-var cropSourceToCanvas = function (source, width, height) {
-    console.log('cropSourceToCanvas', width, height);
+var cropSourceTocanvas = function (source, width, height) {
+    console.log('cropSourceTocanvas', width, height);
 
     // Set source size to a square
     var sourceSize = Math.min(width, height);
@@ -119,16 +118,16 @@ var cropSourceToCanvas = function (source, width, height) {
     } else {
         cropY = height - width;
     }
-    console.log('canvasSize', sourceSize, 'cropX', cropX / 2, 'cropY', cropY / 2);
+    console.log('$canvasSize', sourceSize, 'cropX', cropX / 2, 'cropY', cropY / 2);
 
 
-    // Set canvas size and draw source in canvas with cropping
-    canvas.width = sourceSize;
-    canvas.height = sourceSize;
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    // Set $canvas size and draw source in $canvas with cropping
+    $canvas.width = sourceSize;
+    $canvas.height = sourceSize;
+    context.clearRect(0, 0, $canvas.width, $canvas.height);
     context.drawImage(source, -cropX, -cropY, sourceSize + cropX, sourceSize + cropY);
 
-    return canvas;
+    return $canvas;
 
 };
 
@@ -143,7 +142,7 @@ var cropImage = function (base64) {
 
     console.log('cropImage', image.width, image.height);
 
-    var canvas = cropSourceToCanvas(image, image.width, image.height);
+    var canvas = cropSourceTocanvas(image, image.width, image.height);
     return canvas;
 };
 
@@ -154,7 +153,7 @@ var cropImage = function (base64) {
 var cropVideo = function (video) {
     console.log('cropVideo', video);
 
-    var canvas = cropSourceToCanvas(video, video.videoWidth, video.videoHeight);
+    var canvas = cropSourceTocanvas(video, video.videoWidth, video.videoHeight);
     return canvas;
 };
 
@@ -166,14 +165,14 @@ var cropVideo = function (video) {
 var isPseudoFilled = function () {
     console.log('isPseudoFilled');
 
-    pseudo = $("#pseudo").val();
+    pseudo = document.querySelector('#pseudo').value;
 
     if (pseudo === '') {
         return false;
     } else {
         if (isUserExist(pseudo)) {
             removeItemInArray(users, pseudo);
-            $('#' + pseudo).remove();
+            document.querySelector('#' + pseudo).remove();
         }
         return true;
     }
@@ -184,36 +183,35 @@ var isPseudoFilled = function () {
  */
 var sendCapture = function () {
 
-    var $pseudoError = $('#pseudo-error');
 
     // VIDEO STREAMING
-    $("#capture-video").on("click", function () {
+    document.querySelector('#capture-video').addEventListener('click', function () {
 
-        $pseudoError.hide();
+        $pseudoError.classList.remove('active');
 
         if (isPseudoFilled()) {
             // Show progress bar
-            $progress.addClass("active");
+            $progress.classList.remove('active');
 
-            // Send canvas to server
+            // Send $canvas to server
             var croppedVideo = cropVideo(video);
             var dataURL = croppedVideo.toDataURL();
             socket.emit('newimage', {image: dataURL, pseudo: pseudo})
         } else {
-            $pseudoError.show();
+            $pseudoError.classList.add('active');
         }
 
     });
 
 
     // CAPTURE FILE
-    $('#capture-file').on('change', function (e) {
+    document.querySelector('#capture-file').addEventListener('change', function (e) {
 
-        $pseudoError.hide();
+        $pseudoError.classList.remove('active');
 
         if (isPseudoFilled()) {
             // Show progress bar
-            $progress.addClass("active");
+            $progress.classList.add('active');
 
             loadImage(
                 e.target.files[0],
@@ -223,7 +221,7 @@ var sendCapture = function () {
                 },
                 // Options
                 {
-                    canvas: true,
+                    $canvas: true,
                     maxWidth: 480,
                     maxHeight: 480,
                     crop: true,
@@ -231,7 +229,7 @@ var sendCapture = function () {
                 }
             );
         } else {
-            $pseudoError.show();
+            $pseudoError.classList.add('active');
         }
     });
 };
@@ -279,24 +277,24 @@ var insertImage = function (imagePath, method) {
 
     // Push image to $wall
     var user = imagePath.replace('.png', '');
-    var li = document.createElement("li");
-    var span = document.createElement("span");
+    var li = document.createElement('li');
+    var span = document.createElement('span');
     li.setAttribute('id', user);
     li.setAttribute('class', 'wall-user');
 
-    var img = document.createElement("img");
-    img.setAttribute("src", "./img/photo/" + imagePath + '?' + new Date().getTime());
+    var img = document.createElement('img');
+    img.setAttribute('src', './img/photo/' + imagePath + '?' + new Date().getTime());
 
-    var p = document.createElement("p");
+    var p = document.createElement('p');
     p.innerHTML = user;
 
     li.appendChild(span);
     span.appendChild(img);
     span.appendChild(p);
 
-    // Insert image
-    method === 'after' ? $wall.append(li) : $wall.prepend(li);
+    // Insert image (after or before)
+     method === 'after' ? $wall.appendChild(li) : $wall.insertBefore(li, $wall.firstChild);
 
     // Add user to array users
-    users.push(imagePath.replace('.png', ''));
+    users.push(user);
 };
