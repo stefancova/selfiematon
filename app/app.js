@@ -25,7 +25,7 @@ io.on('connection', function (socket) {
     console.log('A client is connected !');
 
     // Read images on file dir and emit message "readfiles"
-    fs.readdir( 'public/img/photo', function (err, files) {
+    fs.readdir( './public/img/photo', function (err, files) {
         if (!err){
             console.log('read dir', files);
             socket.emit('readfiles',files);
@@ -45,7 +45,7 @@ io.on('connection', function (socket) {
         console.log('on_newimage : ' , image.substring(0,100), data.pseudo);
 
         var imageBuffer = new Buffer(image, 'base64');
-        var fileName = 'public/img/photo/'+ data.pseudo + '.png';
+        var fileName = './public/img/photo/'+ data.pseudo + '.png';
 
         fs.writeFile(fileName, imageBuffer, 'binary', function(err){
             if (err) {
