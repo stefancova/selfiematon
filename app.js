@@ -31,7 +31,7 @@ io.on('connection', function (socket) {
             socket.emit('readfiles',files);
         }
         else{
-            console.log('error', err)
+            console.log('error', err);
             throw err;
         }
     });
@@ -60,7 +60,6 @@ io.on('connection', function (socket) {
 
     });
 });
-
 
 
 // Run server
