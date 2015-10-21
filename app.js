@@ -20,6 +20,10 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+// Io conf for heroku (https://github.com/nodejs/node-v0.x-archive/wiki/Socket.IO-and-Heroku)
+io.set('transports', ['xhr-polling']);
+io.set('polling duration', 10);
+
 // Websocket actions
 io.on('connection', function (socket) {
     console.log('A client is connected !');
